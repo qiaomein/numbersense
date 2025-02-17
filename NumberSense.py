@@ -20,8 +20,36 @@ def logout(*s): print("[LOG]: ", ' '.join([str(k) for k in s]))
 class TimeKeeper(object):
     def __init__(self):
         self.mode = None
-        self.mode_settings = dict()
+        self.t0 = time.perf_counter()
+        self.timerVal = None
     
+    def setTimer(self,duration):
+        self.mode == "Timer"
+        self.timerVal = duration
+        
+    def setStopwatch(self):
+        self.mode == "Stopwatch"
+        self.timerVal = None
+        
+    def getNow(self):
+        return round(time.perf_counter() - self.t0,3)
+    
+    def reset(self):
+        self.t0 = time.perf_counter()
+        
+    def showTime(self):
+        if self.mode == "Timer":
+            tleft = self.timerVal - self.getNow()
+            st.text(f"Time left: {tleft} seconds")
+        else:
+            st.text(f"Time elapsed: {self.getNow()} seconds")
+    
+    def isValid(self):
+        if self.mode == "Timer":
+            if self.timerVal < self.getNow():
+                return False
+        
+        return True
 
 class ProblemEngine(object):
     def __init__(self,ptype,pdisp,time_keeper):
@@ -30,6 +58,7 @@ class ProblemEngine(object):
         self.timer_keeper = time_keeper
         self.answer = None
         self.out = None
+        self.count = 1
     
     def __str__(self):
         return f"{self.out}, Answer: {self.answer}"

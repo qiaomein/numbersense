@@ -8,7 +8,7 @@ import random as rand
 
 class SoundEngine(object):
     def __init__(self):
-        self.soundfiles = ["incorrect.mp3", "correct.mp3"]
+        self.soundfiles = ["incorrect.mp3", "correct.mp3","alarm.mp3"]
         self.loadTTS()
         self.loadSFXEngine()
     
@@ -27,7 +27,10 @@ class SoundEngine(object):
     def playVoice(self,s): # all voices are through this command
         assert type(s) is str
         self.tts_engine.stop()
-        self.tts_engine.endLoop()
+        try:
+            self.tts_engine.endLoop()
+        except RuntimeError:
+            pass
         self.tts_engine.say(s)
         self.tts_engine.runAndWait()
         
@@ -44,8 +47,8 @@ class SoundEngine(object):
         
     def reset(self):
         self.tts_engine.stop()
+        mixer.music.stop()
     
-
 
 def main():
     st.set_page_config(layout='centered')
@@ -63,6 +66,12 @@ def main():
         st.session_state.userInput = ""
     if "prevProblem" not in st.session_state:
         st.session_state.prevProblem = None
+        
+    ## timer state vars
+    if "prevTime" not in st.session_state:
+        st.session_state.prevTime = TimeKeeper()
+    
+    time_keeper = st.session_state.prevTime
     #####
     
     st.title("Numberino Sensorino!")
@@ -74,7 +83,6 @@ def main():
     
     
     sound_engine = SoundEngine()
-    time_keeper = TimeKeeper()
     
     # pills to select mode like: addition, multiplication, find day of week
     # another set of pills for settings: voice only, display
@@ -99,12 +107,12 @@ def main():
         
         if time_keeper.mode == "Timer":
             with col2:
-                minutes = st.number_input("Minutes", 0)
+                minutes = st.number_input("Minutes", 0, value= 10)
             with col3:
                 secs = st.number_input("Seconds",0,59)
-            time_keeper.mode_settings[time_keeper.mode] = (minutes,secs)
+            time_keeper.setTimer(minutes*60 + secs)
         else: # stopwatch mode
-            time_keeper.mode_settings[time_keeper.mode] = None
+            time_keeper.setStopwatch()
     
     
         problem_engine = ProblemEngine(problem_type,problem_display_mode,time_keeper)
@@ -119,13 +127,18 @@ def main():
 
     
     if st.button("Start!") and problem_engine.isValid():
-        logout("Starting...")
+        logout("Starting session...")
+        
         st.session_state.inSession = True
         sound_engine.reset()
+        time_keeper.reset()
         
         problem_engine.generateProblem()
         st.session_state.prevProblem = problem_engine
+        
+        
         st.rerun() # refresh so the settings don't pop up
+        
         
     
     ###########
@@ -136,8 +149,10 @@ def main():
         if uin == correct_answer:
             logout("CORRECT!")
             sound_engine.playSound("correct.mp3")
+            problem_engine.count += 1
             st.session_state.prevProblem = problem_engine
             problem_engine.generateProblem()
+            
             
         elif len(uin) > 0 and uin != correct_answer: # wrong answer
             logout("WRONG!")
@@ -146,15 +161,22 @@ def main():
             st.warning("Please type an answer.")
         
         
+        
         # reset
         st.session_state.userInput = ""
-        
         return
 
     # Get user input
     if st.session_state.inSession:
-        st.text_input("Enter answer here:", key = "userInput", on_change=handle_submit)
+        
         st.session_state.prevProblem.showProblem(sound_engine)
+        
+        st.text_input(f"Problem {problem_engine.count}.", key = "userInput", on_change=handle_submit)
+        if st.session_state.prevTime.isValid():
+            st.session_state.prevTime.showTime()
+        else:
+            sound_engine.playSound("alarm.mp3")
+        
     
     
 if __name__ == "__main__":
