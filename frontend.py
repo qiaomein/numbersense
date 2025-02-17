@@ -13,7 +13,7 @@ class SoundEngine(object):
         self.loadSFXEngine()
     
     def loadTTS(self):
-        engine = pyttsx3.init()
+        engine = pyttsx3.init('espeak')
         
         voices = engine.getProperty('voices')
         #engine.setProperty('voice',voices[7].id)
