@@ -109,9 +109,10 @@ class ProblemEngine(object):
         self.answer = answer
         logout("GENERATING NEW PROBLEM", self)
     
-    def showProblem(self, sound_engine):
+    def showProblem(self, sound_engine = None):
         
         if self.problem_display_setting == "Read Aloud":
+            assert sound_engine is not None
             sound_engine.playVoice(self.out)
         else:
             st.latex(self.out)

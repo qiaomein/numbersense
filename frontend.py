@@ -2,52 +2,52 @@ import streamlit as st
 #import pyttsx3
 import numpy as np
 from NumberSense import TimeKeeper,ProblemEngine, logout, ALL_PROBLEM_TYPES, ALL_VOICE_TESTS
-from pygame import mixer
+# from pygame import mixer
 import random as rand
 
 
-class SoundEngine(object):
-    def __init__(self):
-        self.soundfiles = ["incorrect.mp3", "correct.mp3","alarm.mp3"]
-        #self.loadTTS()
-        self.loadSFXEngine()
+# class SoundEngine(object):
+#     def __init__(self):
+#         self.soundfiles = ["incorrect.mp3", "correct.mp3","alarm.mp3"]
+#         #self.loadTTS()
+#         self.loadSFXEngine()
     
-    # def loadTTS(self):
-    #     engine = pyttsx3.init('espeak')
+#     # def loadTTS(self):
+#     #     engine = pyttsx3.init('espeak')
         
-    #     voices = engine.getProperty('voices')
-    #     #engine.setProperty('voice',voices[7].id)
-    #     rate = engine.getProperty('rate')   # getting details of current speaking rate
-    #     engine.setProperty('rate',200)     # setting up new voice rate
+#     #     voices = engine.getProperty('voices')
+#     #     #engine.setProperty('voice',voices[7].id)
+#     #     rate = engine.getProperty('rate')   # getting details of current speaking rate
+#     #     engine.setProperty('rate',200)     # setting up new voice rate
         
-    #     self.tts_engine = engine
+#     #     self.tts_engine = engine
         
-        
-
-    # def playVoice(self,s): # all voices are through this command
-    #     assert type(s) is str
-    #     self.tts_engine.stop()
-    #     try:
-    #         self.tts_engine.endLoop()
-    #     except RuntimeError:
-    #         pass
-    #     self.tts_engine.say(s)
-    #     self.tts_engine.runAndWait()
         
 
-    def loadSFXEngine(self):
-        mixer.init()
-        mixer.music.set_volume(0.7)
+#     # def playVoice(self,s): # all voices are through this command
+#     #     assert type(s) is str
+#     #     self.tts_engine.stop()
+#     #     try:
+#     #         self.tts_engine.endLoop()
+#     #     except RuntimeError:
+#     #         pass
+#     #     self.tts_engine.say(s)
+#     #     self.tts_engine.runAndWait()
         
-    def playSound(self,fname):
-        if fname not in self.soundfiles:
-            raise LookupError
-        mixer.music.load(fname)
-        mixer.music.play()
+
+#     def loadSFXEngine(self):
+#         mixer.init()
+#         mixer.music.set_volume(0.7)
         
-    def reset(self):
-        #self.tts_engine.stop()
-        mixer.music.stop()
+#     def playSound(self,fname):
+#         if fname not in self.soundfiles:
+#             raise LookupError
+#         mixer.music.load(fname)
+#         mixer.music.play()
+        
+#     def reset(self):
+#         #self.tts_engine.stop()
+#         mixer.music.stop()
     
 
 def main():
@@ -82,7 +82,7 @@ def main():
     """)
     
     
-    sound_engine = SoundEngine()
+    # sound_engine = SoundEngine()
     
     # pills to select mode like: addition, multiplication, find day of week
     # another set of pills for settings: voice only, display
@@ -94,7 +94,7 @@ def main():
         problem_type = st.pills("Select Problem Type", ALL_PROBLEM_TYPES)
         problem_display_mode = st.segmented_control("Problem Display", ["Show on Screen"])
         if problem_display_mode == "Read Aloud" and st.session_state.prevDispOption != "Read Aloud":
-            sound_engine.playVoice(rand.choice(ALL_VOICE_TESTS))
+            #sound_engine.playVoice(rand.choice(ALL_VOICE_TESTS))
             st.session_state.prevDispOption = problem_display_mode
         elif problem_display_mode != "Read Aloud":
             st.session_state.prevDispOption = ""
@@ -130,7 +130,7 @@ def main():
         logout("Starting session...")
         
         st.session_state.inSession = True
-        sound_engine.reset()
+        #sound_engine.reset()
         time_keeper.reset()
         
         problem_engine.generateProblem()
@@ -148,7 +148,7 @@ def main():
         correct_answer = str(st.session_state.prevProblem.answer)
         if uin == correct_answer:
             logout("CORRECT!")
-            sound_engine.playSound("correct.mp3")
+            #sound_engine.playSound("correct.mp3")
             problem_engine.count += 1
             st.session_state.prevProblem = problem_engine
             problem_engine.generateProblem()
@@ -156,7 +156,7 @@ def main():
             
         elif len(uin) > 0 and uin != correct_answer: # wrong answer
             logout("WRONG!")
-            sound_engine.playSound("incorrect.mp3")
+            #sound_engine.playSound("incorrect.mp3")
         else:
             st.warning("Please type an answer.")
         
@@ -169,13 +169,16 @@ def main():
     # Get user input
     if st.session_state.inSession:
         
-        st.session_state.prevProblem.showProblem(sound_engine)
+        #st.session_state.prevProblem.showProblem(sound_engine)
+        st.session_state.prevProblem.showProblem()
         
         st.text_input(f"Problem {problem_engine.count}.", key = "userInput", on_change=handle_submit)
         if st.session_state.prevTime.isValid():
             st.session_state.prevTime.showTime()
         else:
-            sound_engine.playSound("alarm.mp3")
+            #sound_engine.playSound("alarm.mp3")
+            st.session_state.inSession = False
+            st.rerun()
         
     
     
