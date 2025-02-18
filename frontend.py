@@ -1,5 +1,5 @@
 import streamlit as st
-import pyttsx3
+#import pyttsx3
 import numpy as np
 from NumberSense import TimeKeeper,ProblemEngine, logout, ALL_PROBLEM_TYPES, ALL_VOICE_TESTS
 from pygame import mixer
@@ -9,30 +9,30 @@ import random as rand
 class SoundEngine(object):
     def __init__(self):
         self.soundfiles = ["incorrect.mp3", "correct.mp3","alarm.mp3"]
-        self.loadTTS()
+        #self.loadTTS()
         self.loadSFXEngine()
     
-    def loadTTS(self):
-        engine = pyttsx3.init('espeak')
+    # def loadTTS(self):
+    #     engine = pyttsx3.init('espeak')
         
-        voices = engine.getProperty('voices')
-        #engine.setProperty('voice',voices[7].id)
-        rate = engine.getProperty('rate')   # getting details of current speaking rate
-        engine.setProperty('rate',200)     # setting up new voice rate
+    #     voices = engine.getProperty('voices')
+    #     #engine.setProperty('voice',voices[7].id)
+    #     rate = engine.getProperty('rate')   # getting details of current speaking rate
+    #     engine.setProperty('rate',200)     # setting up new voice rate
         
-        self.tts_engine = engine
+    #     self.tts_engine = engine
         
         
 
-    def playVoice(self,s): # all voices are through this command
-        assert type(s) is str
-        self.tts_engine.stop()
-        try:
-            self.tts_engine.endLoop()
-        except RuntimeError:
-            pass
-        self.tts_engine.say(s)
-        self.tts_engine.runAndWait()
+    # def playVoice(self,s): # all voices are through this command
+    #     assert type(s) is str
+    #     self.tts_engine.stop()
+    #     try:
+    #         self.tts_engine.endLoop()
+    #     except RuntimeError:
+    #         pass
+    #     self.tts_engine.say(s)
+    #     self.tts_engine.runAndWait()
         
 
     def loadSFXEngine(self):
@@ -46,7 +46,7 @@ class SoundEngine(object):
         mixer.music.play()
         
     def reset(self):
-        self.tts_engine.stop()
+        #self.tts_engine.stop()
         mixer.music.stop()
     
 
@@ -92,7 +92,7 @@ def main():
         st.subheader("Settings")
         
         problem_type = st.pills("Select Problem Type", ALL_PROBLEM_TYPES)
-        problem_display_mode = st.segmented_control("Problem Display", ["Show on Screen", "Read Aloud"])
+        problem_display_mode = st.segmented_control("Problem Display", ["Show on Screen"])
         if problem_display_mode == "Read Aloud" and st.session_state.prevDispOption != "Read Aloud":
             sound_engine.playVoice(rand.choice(ALL_VOICE_TESTS))
             st.session_state.prevDispOption = problem_display_mode
